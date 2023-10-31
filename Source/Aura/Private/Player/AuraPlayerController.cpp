@@ -50,3 +50,36 @@ void AAuraPlayerController::Move(const struct FInputActionValue& InputActionValu
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
 }
+
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	CursorTrace();
+}
+
+void AAuraPlayerController::CursorTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+
+	LastActor = ThisActor; 
+	ThisActor = Cast<IEnemyInterface>(CursorHit.GetActor());
+
+	if (LastActor == nullptr && ThisActor != nullptr)
+	{
+		ThisActor->HighlightActor();
+	}
+	else if (LastActor != nullptr && ThisActor == nullptr)
+	{
+		LastActor->UnhighlightActor();
+	}
+	else if (LastActor != nullptr && ThisActor != nullptr)
+	{
+		if (LastActor != ThisActor)
+		{
+			LastActor->UnhighlightActor();
+			ThisActor->HighlightActor();
+		}
+	}
+}
