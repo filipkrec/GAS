@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
+#include "GAS/AuraAttributeSet.h"
 #include "AuraPlayerState.generated.h"
 
 class UAbilitySystemComponent;
@@ -25,7 +26,7 @@ public:
 	virtual UAttributeSet* GetAttributeSet() const ;
 	
 	UPROPERTY()
-	TObjectPtr<UAuraAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
