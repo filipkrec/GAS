@@ -23,6 +23,61 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
 }
 
+void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetHealthAttribute())
+	{
+		if (NewValue > GetMaxHealth()) NewValue = GetMaxHealth();
+		else if (NewValue < 0) NewValue = 0;
+	}
+
+	if (Attribute == GetManaAttribute())
+	{
+		if (NewValue > GetMaxMana()) NewValue = GetMaxMana();
+		else if (NewValue < 0) NewValue = 0;
+	}
+
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		if (NewValue < GetHealth())
+		{
+			SetHealth(NewValue);
+		}
+	}
+
+	if (Attribute == GetMaxManaAttribute())
+	{
+		if (NewValue < GetMana())
+		{
+			SetMana(NewValue);
+		}
+	}
+}
+
+void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	FGameplayEffectContextHandle source = Data.EffectSpec.GetEffectContext();
+	UAbilitySystemComponent* SourceASC = source.GetOriginalInstigatorAbilitySystemComponent();
+	if (IsValid(SourceASC) && IsValid(SourceASC->AbilityActorInfo->AvatarActor.Get()))
+	{
+		AActor* SourceActor = SourceASC->AbilityActorInfo->AvatarActor.Get();
+		AController* SourcePC = SourceASC->AbilityActorInfo->PlayerController.Get();
+		if (!SourcePC)
+		{
+			if (APawn* Pawn = Cast<APawn>(SourceActor))
+			{
+				SourcePC = Pawn->GetController();
+			}
+		}
+	}
+
+	AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+}
+
 void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& _oldHealth) const
 {
 	//GAS works with rollback. Client creates a change -> notifies the server of that change -> the server checks if the change is valid ->
