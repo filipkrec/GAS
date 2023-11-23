@@ -2,14 +2,13 @@
 
 
 #include "GAS/AuraAttributeSet.h"
+
+#include "GAS/AttributesData.h"
 #include "Net/UnrealNetwork.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
-	InitMaxHealth((100.f));
-	InitHealth(25.f);
-	InitMana((55.f));
-	InitMaxMana((55.f));
+	
 }
 
 void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -98,4 +97,48 @@ void UAuraAttributeSet::OnRep_Mana(const FGameplayAttributeData& _oldMana) const
 void UAuraAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& _oldMaxMana) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, MaxMana, _oldMaxMana);
+}
+
+FGameplayAttribute UAuraAttributeSet::GetAttribute(UAttributesData* Data, FGameplayTag& Tag)
+{
+	EAttribute Attribute = Data->GetAttribute(Tag);
+	
+	switch(Attribute)
+	{
+	case(EAttribute::HP):
+		return GetHealthAttribute();
+	case(EAttribute::MaxHP):
+		return GetMaxHealthAttribute();
+	case(EAttribute::Mana):
+		return GetManaAttribute();
+	case(EAttribute::MaxMana):
+		return GetMaxManaAttribute();
+	}
+
+	return GetHealthAttribute();
+}
+
+float UAuraAttributeSet::GetAttributeValue(UAttributesData* Data, FGameplayTag& Tag)
+{
+	return GetAttribute(Data, Tag).GetNumericValue(this);
+}
+
+TArray<FAttributeValue> UAuraAttributeSet::GetAttributeValues(UAttributesData* Data,TArray<FGameplayTag> Tags)
+{
+	TArray<FAttributeValue> ToReturn;
+	for (FGameplayTag& Element : Tags)
+	{
+		ToReturn.Add(FAttributeValue(Element, GetAttributeValue(Data, Element)));
+	}
+	return ToReturn;
+}
+
+TArray<FAttributeValue> UAuraAttributeSet::GetAllAttributeValues(UAttributesData* Data)
+{
+	TArray<FAttributeValue> ToReturn;
+	for (FAttributeData Element : Data->AttributeData)
+	{
+		ToReturn.Add(FAttributeValue(Element.Tag, GetAttributeValue(Data, Element.Tag)));
+	}
+	return ToReturn;
 }

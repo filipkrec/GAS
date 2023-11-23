@@ -10,9 +10,7 @@
 
 class UAbilitySystemComponent;
 class UAttributeSet;
-/**
- * 
- */
+
 UCLASS()
 class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
 {
@@ -25,4 +23,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAttributeSet> AttributeSetClass;
 };

@@ -22,6 +22,7 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	InitAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
 void AAuraCharacter::OnRep_PlayerState()
@@ -37,8 +38,8 @@ void AAuraCharacter::InitAbilityActorInfo()
 	
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttributeSet();
-	(Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))->AbilityActorInfoSet();
 	
+	(Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))->AbilityActorInfoSet();
 	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState, this);
 
 	if(AAuraPlayerController* PlayerController = Cast<AAuraPlayerController>(GetController()))
@@ -46,4 +47,6 @@ void AAuraCharacter::InitAbilityActorInfo()
 		AAuraHUD* AuraHUD = Cast<AAuraHUD>(PlayerController->GetHUD());
 		AuraHUD->InitOverlay(PlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
 	}
+	
+	InitializeDefaultAttributes();
 }

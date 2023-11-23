@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "AttributesData.h"
 #include "GameplayEffectExtension.h"
 #include "AuraAttributeSet.generated.h"
 
@@ -12,6 +13,24 @@ GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+USTRUCT(Blueprintable, BlueprintType)
+struct FAttributeValue
+{
+	GENERATED_BODY()
+
+	FAttributeValue():
+	Tag(FGameplayTag()), Value(0.f){}
+	
+	FAttributeValue(FGameplayTag InTag, float InValue):
+	Tag(InTag), Value(InValue){}
+
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayTag Tag;
+	
+	UPROPERTY(BlueprintReadWrite)
+	float Value;
+};
 
 //Contains a set of attributes. Each attribute has a current value and base value which can be modified through GAS.
 //Several different ability system components can use the same set of attributes (each in their own instance)
@@ -42,7 +61,6 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana, Category = "Attributes")
 	FGameplayAttributeData MaxMana;
-
 	
 	//Helper function to access the property but through GAS (maintains replication) 
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Health);
@@ -64,4 +82,15 @@ public:
 	
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& _oldMaxMana) const;
+
+	FGameplayAttribute GetAttribute(UAttributesData* Data, FGameplayTag& Tag);
+	
+	UFUNCTION(BlueprintCallable)
+	float GetAttributeValue(UAttributesData* Data, FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FAttributeValue> GetAttributeValues(UAttributesData* Data, TArray<FGameplayTag> Tags);
+	
+	UFUNCTION(BlueprintCallable)
+	TArray<FAttributeValue> GetAllAttributeValues(UAttributesData* Data);
 };

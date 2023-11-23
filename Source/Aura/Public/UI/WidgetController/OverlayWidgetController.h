@@ -2,13 +2,45 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UnrealWidgetFwd.h"
 #include "UI/WidgetController/AuraWidgetController.h"
+#include "UI/Widgets/AuraUserWidget.h"
 #include "OverlayWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStatChangedSignature);
+
+USTRUCT(BlueprintType)
+struct FTagRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag MessageTag = FGameplayTag();
+
+	static FTagRow* GetDataTableRow(const UDataTable* DataTable, const FGameplayTag& Tag);
+};
+
+USTRUCT(BlueprintType)
+struct FUIWidgetRow : public FTagRow
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Message = FText();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAuraUserWidget> MessageWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Image = nullptr;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 
 UCLASS(BlueprintType, Blueprintable)
 class AURA_API UOverlayWidgetController : public UAuraWidgetController
@@ -27,10 +59,18 @@ public:
 	FOnHealthChangedSignature OnManaChanged;
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnMaxHealthChangedSignature OnMaxManaChanged;
+	UPROPERTY(BlueprintAssignable, Category="GAS|Tags")
+	FMessageWidgetRowSignature OnMessageWidgetRow;
+	UPROPERTY(BlueprintAssignable, Category="GAS|Tags")
+	FOnStatChangedSignature OnStatChanged;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UDataTable> MessageWidgetDataTable;
+	
 	void HealthChanged(const FOnAttributeChangeData& Data) const;
 	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
 	void ManaChanged(const FOnAttributeChangeData& Data) const;
 	void MaxManaChanged(const FOnAttributeChangeData& Data) const;
 };
+

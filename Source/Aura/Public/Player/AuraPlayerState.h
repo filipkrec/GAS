@@ -30,4 +30,7 @@ public:
 	
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAttributeSet> AttributeSetClass;
 };

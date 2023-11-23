@@ -13,5 +13,6 @@ UCLASS()
 class AURA_API AAuraGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+	virtual void BeginPlay() override;
 };

@@ -10,20 +10,23 @@ AAuraEnemy::AAuraEnemy()
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
-
-
-	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
+	
+	AttributeSet = Cast<UAuraAttributeSet>(CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet"));
 }
 
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	AbilitySystemComponent->InitAbilityActorInfo(this,this);
+	AddCharacterAbilities();
+	InitAbilityActorInfo();
 }
 
 void AAuraEnemy::InitAbilityActorInfo()
 {
 	(Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))->AbilityActorInfoSet();
+	InitializeDefaultAttributes();
 }
 
 void AAuraEnemy::HighlightActor()

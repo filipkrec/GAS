@@ -21,14 +21,24 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() {};
+	virtual void AddCharacterAbilities();
+	void InitializeDefaultAttributes() const;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, Category = Ability)
+	TArray<TSubclassOf<UGameplayAbility>> StartAbilities;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayEffect> InitializeEffect;
+
+	UFUNCTION(BlueprintCallable, Category = Ability)
+	void ActivateAbility(FGameplayAbilitySpecHandle AbilitySpecHandle);
 };
